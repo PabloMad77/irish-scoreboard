@@ -12,9 +12,7 @@ body {
   padding: 10px;
 }
 
-h1 {
-  margin-bottom: 5px;
-}
+h1 { margin-bottom: 5px; }
 
 .info-input {
   margin: 5px 0;
@@ -51,9 +49,7 @@ button {
   text-align: left;
 }
 
-.controls {
-  margin-top: 15px;
-}
+.controls { margin-top: 15px; }
 </style>
 </head>
 
@@ -66,11 +62,11 @@ button {
 <input class="info-input" type="text" id="tournament" placeholder="Tournament Name">
 
 <!-- IRISH -->
-<div class="team" id="teamA" style="background:#006400;">
+<div class="team" style="background:#006400;">
   <h2>IRISH</h2>
   <div class="score" id="scoreA">0</div>
-  <button onclick="addGoal('A')">+1</button>
-  <button onclick="removeGoal('A')">-1</button>
+  <button onclick="addGoal()">+1</button>
+  <button onclick="removeGoal()">-1</button>
 
   <div class="scorers">
     <strong>Goal Scorers:</strong>
@@ -79,16 +75,11 @@ button {
 </div>
 
 <!-- OPPONENT -->
-<div class="team" id="teamB" style="background:#444;">
+<div class="team" style="background:#444;">
   <input type="text" id="opponentName" value="Opponent">
   <div class="score" id="scoreB">0</div>
-  <button onclick="addGoal('B')">+1</button>
-  <button onclick="removeGoal('B')">-1</button>
-
-  <div class="scorers">
-    <strong>Goal Scorers:</strong>
-    <div id="scorersB"></div>
-  </div>
+  <button onclick="addOpponentGoal()">+1</button>
+  <button onclick="removeOpponentGoal()">-1</button>
 </div>
 
 <div class="controls">
@@ -101,7 +92,6 @@ button {
 let scoreA = 0;
 let scoreB = 0;
 let scorersA = [];
-let scorersB = [];
 
 function updateTitle() {
   document.getElementById("title").textContent =
@@ -110,40 +100,36 @@ function updateTitle() {
 
 function renderScorers() {
   document.getElementById("scorersA").innerHTML = scorersA.join("<br>");
-  document.getElementById("scorersB").innerHTML = scorersB.join("<br>");
 }
 
-function addGoal(team) {
-
+function addGoal() {
   const name = prompt("Player Name:");
   if (!name) return;
 
   const minute = prompt("Minute scored? (optional)");
   const entry = minute ? name + " (" + minute + "')" : name;
 
-  if (team === "A") {
-    scoreA++;
-    scorersA.push(entry);
-  } else {
-    scoreB++;
-    scorersB.push(entry);
-  }
+  scoreA++;
+  scorersA.push(entry);
 
   updateDisplay();
 }
 
-function removeGoal(team) {
-
-  if (team === "A" && scoreA > 0) {
+function removeGoal() {
+  if (scoreA > 0) {
     scoreA--;
     scorersA.pop();
   }
+  updateDisplay();
+}
 
-  if (team === "B" && scoreB > 0) {
-    scoreB--;
-    scorersB.pop();
-  }
+function addOpponentGoal() {
+  scoreB++;
+  updateDisplay();
+}
 
+function removeOpponentGoal() {
+  if (scoreB > 0) scoreB--;
   updateDisplay();
 }
 
@@ -159,7 +145,6 @@ function resetGame() {
   scoreA = 0;
   scoreB = 0;
   scorersA = [];
-  scorersB = [];
   document.getElementById("opponentName").value = "Opponent";
   document.getElementById("category").value = "";
   document.getElementById("tournament").value = "";
@@ -169,13 +154,13 @@ function resetGame() {
 
 function saveData() {
   const data = {
-    scoreA, scoreB,
-    scorersA, scorersB,
+    scoreA,
+    scoreB,
+    scorersA,
     opponent: document.getElementById("opponentName").value,
     category: document.getElementById("category").value,
     tournament: document.getElementById("tournament").value
   };
-
   localStorage.setItem("irishSoccerGame", JSON.stringify(data));
 }
 
@@ -186,7 +171,6 @@ function loadData() {
   scoreA = data.scoreA || 0;
   scoreB = data.scoreB || 0;
   scorersA = data.scorersA || [];
-  scorersB = data.scorersB || [];
   document.getElementById("opponentName").value = data.opponent || "Opponent";
   document.getElementById("category").value = data.category || "";
   document.getElementById("tournament").value = data.tournament || "";
@@ -197,7 +181,7 @@ function exportImage() {
 
   const canvas = document.createElement("canvas");
   canvas.width = 1000;
-  canvas.height = 700;
+  canvas.height = 650;
   const ctx = canvas.getContext("2d");
 
   ctx.fillStyle = "#ffffff";
@@ -224,15 +208,8 @@ function exportImage() {
   ctx.font = "20px Arial";
   ctx.fillText("IRISH Scorers:", 80, y);
   y += 30;
-  scorersA.forEach(s => {
-    ctx.fillText("- " + s, 100, y);
-    y += 25;
-  });
 
-  y += 20;
-  ctx.fillText("Opponent Scorers:", 80, y);
-  y += 30;
-  scorersB.forEach(s => {
+  scorersA.forEach(s => {
     ctx.fillText("- " + s, 100, y);
     y += 25;
   });
