@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IRISH Soccer Scoreboard</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  margin: 0;
+  padding: 10px;
+}
+
+h1 {
+  margin-bottom: 5px;
+}
+
+.info-input {
+  margin: 5px 0;
+  font-size: 16px;
+  padding: 5px;
+}
+
+.team {
+  padding: 20px;
+  border-radius: 14px;
+  color: white;
+  margin-bottom: 15px;
+}
+
+.score {
+  font-size: 70px;
+  margin: 10px 0;
+}
+
+button {
+  font-size: 18px;
+  padding: 8px 12px;
+  margin: 5px;
+  border: none;
+  border-radius: 8px;
+}
+
+.scorers {
+  background: rgba(255,255,255,0.2);
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 10px;
+  font-size: 14px;
+  text-align: left;
+}
+
+.controls {
+  margin-top: 15px;
+}
+</style>
+</head>
+
+<body>
+
+<h1 id="title">IRISH vs Opponent</h1>
+
+<input class="info-input" type="text" id="category" placeholder="Category (U10, U12, etc)">
+<br>
+<input class="info-input" type="text" id="tournament" placeholder="Tournament Name">
+
+<!-- IRISH -->
+<div class="team" id="teamA" style="background:#006400;">
+  <h2>IRISH</h2>
+  <div class="score" id="scoreA">0</div>
+  <button onclick="addGoal('A')">+1</button>
+  <button onclick="removeGoal('A')">-1</button>
+
+  <div class="scorers">
+    <strong>Goal Scorers:</strong>
+    <div id="scorersA"></div>
+  </div>
+</div>
+
+<!-- OPPONENT -->
+<div class="team" id="teamB" style="background:#444;">
+  <input type="text" id="opponentName" value="Opponent">
+  <div class="score" id="scoreB">0</div>
+  <button onclick="addGoal('B')">+1</button>
+  <button onclick="removeGoal('B')">-1</button>
+
+  <div class="scorers">
+    <strong>Goal Scorers:</strong>
+    <div id="scorersB"></div>
+  </div>
+</div>
+
+<div class="controls">
+  <button onclick="resetGame()">Reset Game</button>
+  <button onclick="exportImage()">📸 Save Final Score</button>
+</div>
+
+<script>
+
+let scoreA = 0;
+let scoreB = 0;
+let scorersA = [];
+let scorersB = [];
+
+function updateTitle() {
+  document.getElementById("title").textContent =
+    "IRISH vs " + document.getElementById("opponentName").value;
+}
+
+function renderScorers() {
+  document.getElementById("scorersA").innerHTML = scorersA.join("<br>");
+  document.getElementById("scorersB").innerHTML = scorersB.join("<br>");
+}
+
+function addGoal(team) {
+
+  const name = prompt("Player Name:");
+  if (!name) return;
+
+  const minute = prompt("Minute scored? (optional)");
+  const entry = minute ? name + " (" + minute + "')" : name;
+
+  if (team === "A") {
+    scoreA++;
+    scorersA.push(entry);
+  } else {
+    scoreB++;
+    scorersB.push(entry);
+  }
+
+  updateDisplay();
+}
+
+function removeGoal(team) {
+
+  if (team === "A" && scoreA > 0) {
+    scoreA--;
+    scorersA.pop();
+  }
+
+  if (team === "B" && scoreB > 0) {
+    scoreB--;
+    scorersB.pop();
+  }
+
+  updateDisplay();
+}
+
+function updateDisplay() {
+  document.getElementById("scoreA").textContent = scoreA;
+  document.getElementById("scoreB").textContent = scoreB;
+  renderScorers();
+  updateTitle();
+  saveData();
+}
+
+function resetGame() {
+  scoreA = 0;
+  scoreB = 0;
+  scorersA = [];
+  scorersB = [];
+  document.getElementById("opponentName").value = "Opponent";
+  document.getElementById("category").value = "";
+  document.getElementById("tournament").value = "";
+  updateDisplay();
+  localStorage.clear();
+}
+
+function saveData() {
+  const data = {
+    scoreA, scoreB,
+    scorersA, scorersB,
+    opponent: document.getElementById("opponentName").value,
+    category: document.getElementById("category").value,
+    tournament: document.getElementById("tournament").value
+  };
+
+  localStorage.setItem("irishSoccerGame", JSON.stringify(data));
+}
+
+function loadData() {
+  const data = JSON.parse(localStorage.getItem("irishSoccerGame"));
+  if (!data) return;
+
+  scoreA = data.scoreA || 0;
+  scoreB = data.scoreB || 0;
+  scorersA = data.scorersA || [];
+  scorersB = data.scorersB || [];
+  document.getElementById("opponentName").value = data.opponent || "Opponent";
+  document.getElementById("category").value = data.category || "";
+  document.getElementById("tournament").value = data.tournament || "";
+  updateDisplay();
+}
+
+function exportImage() {
+
+  const canvas = document.createElement("canvas");
+  canvas.width = 1000;
+  canvas.height = 700;
+  const ctx = canvas.getContext("2d");
+
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  ctx.fillStyle = "#000000";
+  ctx.textAlign = "left";
+
+  ctx.font = "bold 48px Arial";
+  ctx.fillText("FINAL", 80, 80);
+
+  ctx.font = "28px Arial";
+  ctx.fillText("Category: " + document.getElementById("category").value, 80, 130);
+  ctx.fillText("Tournament: " + document.getElementById("tournament").value, 80, 170);
+
+  ctx.font = "bold 60px Arial";
+  ctx.fillText("IRISH " + scoreA, 80, 260);
+  ctx.fillText(document.getElementById("opponentName").value + " " + scoreB, 80, 340);
+
+  ctx.font = "22px Arial";
+  ctx.fillText("Date: " + new Date().toLocaleDateString(), 80, 390);
+
+  let y = 450;
+  ctx.font = "20px Arial";
+  ctx.fillText("IRISH Scorers:", 80, y);
+  y += 30;
+  scorersA.forEach(s => {
+    ctx.fillText("- " + s, 100, y);
+    y += 25;
+  });
+
+  y += 20;
+  ctx.fillText("Opponent Scorers:", 80, y);
+  y += 30;
+  scorersB.forEach(s => {
+    ctx.fillText("- " + s, 100, y);
+    y += 25;
+  });
+
+  const link = document.createElement("a");
+  link.download = "IRISH_vs_" + document.getElementById("opponentName").value + ".png";
+  link.href = canvas.toDataURL("image/png");
+  link.click();
+}
+
+document.getElementById("opponentName").addEventListener("input", updateTitle);
+
+loadData();
+
+</script>
+
+</body>
+</html>
