@@ -17,7 +17,9 @@ h1 { margin-bottom: 5px; }
 .info-input {
   margin: 5px 0;
   font-size: 16px;
-  padding: 5px;
+  padding: 6px;
+  width: 90%;
+  max-width: 400px;
 }
 
 .team {
@@ -62,7 +64,7 @@ button {
 <input class="info-input" type="text" id="tournament" placeholder="Tournament Name">
 
 <!-- IRISH -->
-<div class="team" style="background:#006400;">
+<div class="team" style="background:#0f5f2e;">
   <h2>IRISH</h2>
   <div class="score" id="scoreA">0</div>
   <button onclick="addGoal()">+1</button>
@@ -111,7 +113,6 @@ function addGoal() {
 
   scoreA++;
   scorersA.push(entry);
-
   updateDisplay();
 }
 
@@ -180,44 +181,95 @@ function loadData() {
 function exportImage() {
 
   const canvas = document.createElement("canvas");
-  canvas.width = 1000;
-  canvas.height = 650;
+  canvas.width = 1080;
+  canvas.height = 1080;
   const ctx = canvas.getContext("2d");
 
-  ctx.fillStyle = "#ffffff";
-  ctx.fillRect(0,0,canvas.width,canvas.height);
+  // Green gradient background
+  const gradient = ctx.createLinearGradient(0, 0, 0, 1080);
+  gradient.addColorStop(0, "#0f5f2e");
+  gradient.addColorStop(1, "#013d1b");
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, 1080, 1080);
 
-  ctx.fillStyle = "#000000";
-  ctx.textAlign = "left";
+  const logo = new Image();
+  logo.src = "logo.png";
 
-  ctx.font = "bold 48px Arial";
-  ctx.fillText("FINAL", 80, 80);
+  logo.onload = function () {
 
-  ctx.font = "28px Arial";
-  ctx.fillText("Category: " + document.getElementById("category").value, 80, 130);
-  ctx.fillText("Tournament: " + document.getElementById("tournament").value, 80, 170);
+    const logoSize = 180;
+    ctx.drawImage(
+      logo,
+      (1080 - logoSize) / 2,
+      80,
+      logoSize,
+      logoSize
+    );
 
-  ctx.font = "bold 60px Arial";
-  ctx.fillText("IRISH " + scoreA, 80, 260);
-  ctx.fillText(document.getElementById("opponentName").value + " " + scoreB, 80, 340);
+    ctx.fillStyle = "#ffffff";
+    ctx.textAlign = "center";
 
-  ctx.font = "22px Arial";
-  ctx.fillText("Date: " + new Date().toLocaleDateString(), 80, 390);
+    ctx.font = "bold 60px Arial";
+    ctx.fillText("FINAL SCORE", 540, 300);
 
-  let y = 450;
-  ctx.font = "20px Arial";
-  ctx.fillText("IRISH Scorers:", 80, y);
-  y += 30;
+    ctx.font = "28px Arial";
+    ctx.fillText(
+      document.getElementById("tournament").value,
+      540,
+      350
+    );
 
-  scorersA.forEach(s => {
-    ctx.fillText("- " + s, 100, y);
-    y += 25;
-  });
+    ctx.fillText(
+      document.getElementById("category").value,
+      540,
+      390
+    );
 
-  const link = document.createElement("a");
-  link.download = "IRISH_vs_" + document.getElementById("opponentName").value + ".png";
-  link.href = canvas.toDataURL("image/png");
-  link.click();
+    ctx.font = "bold 110px Arial";
+    ctx.fillText(scoreA + "  -  " + scoreB, 540, 560);
+
+    ctx.font = "bold 45px Arial";
+    ctx.fillText("IRISH", 300, 640);
+    ctx.fillText(
+      document.getElementById("opponentName").value,
+      780,
+      640
+    );
+
+    ctx.font = "26px Arial";
+    ctx.fillText(
+      new Date().toLocaleDateString(),
+      540,
+      700
+    );
+
+    if (scorersA.length > 0) {
+      ctx.textAlign = "left";
+      ctx.font = "bold 30px Arial";
+      ctx.fillText("Goal Scorers:", 150, 780);
+
+      ctx.font = "26px Arial";
+      let y = 830;
+
+      scorersA.forEach(s => {
+        ctx.fillText("• " + s, 170, y);
+        y += 35;
+      });
+    }
+
+    const link = document.createElement("a");
+    link.download =
+      "IRISH_vs_" +
+      document.getElementById("opponentName").value +
+      "_" +
+      scoreA +
+      "-" +
+      scoreB +
+      ".png";
+
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  };
 }
 
 document.getElementById("opponentName").addEventListener("input", updateTitle);
