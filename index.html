@@ -197,7 +197,7 @@ function exportImage() {
 
   logo.onload = function () {
 
-    const logoSize = 180;
+    const logoSize = 200;
     ctx.drawImage(
       logo,
       (1080 - logoSize) / 2,
@@ -209,7 +209,7 @@ function exportImage() {
     ctx.fillStyle = "#ffffff";
     ctx.textAlign = "center";
 
-    ctx.font = "bold 60px Arial";
+    ctx.font = "bold 40px Arial";
     ctx.fillText("FINAL SCORE", 540, 300);
 
     ctx.font = "28px Arial";
