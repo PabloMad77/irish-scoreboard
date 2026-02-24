@@ -104,39 +104,50 @@ function renderScorers() {
 document.getElementById("scorersA").innerHTML = scorersA.join("<br>");
 }
 
-function addGoal() {
-const name = prompt("Player Name:");
-if (!name) return;
-
-scoreA++;
-scorersA.push(name);
-updateDisplay();
+function addGoal(){
+  const player = prompt("Player name:");
+  if(player){
+    scoreA++;
+    scorersA.push(player);
+    updateDisplay();
+  }
 }
 
-function removeGoal() {
-if (scoreA > 0) {
-scoreA--;
-scorersA.pop();
-}
-updateDisplay();
-}
-
-function addOpponentGoal() {
-scoreB++;
-updateDisplay();
+function removeGoal(){
+  if(scoreA > 0){
+    scoreA--;
+    scorersA.pop();
+    updateDisplay();
+  }
 }
 
-function removeOpponentGoal() {
-if (scoreB > 0) scoreB--;
-updateDisplay();
+function addOpponent(){
+  scoreB++;
+  updateDisplay();
 }
 
-function updateDisplay() {
-document.getElementById("scoreA").textContent = scoreA;
-document.getElementById("scoreB").textContent = scoreB;
-renderScorers();
-updateTitle();
-saveData();
+function removeOpponent(){
+  if(scoreB > 0){
+    scoreB--;
+    updateDisplay();
+  }
+}
+
+function updateDisplay(){
+  document.getElementById("scoreA").textContent = scoreA;
+  document.getElementById("scoreB").textContent = scoreB;
+
+  const list = document.getElementById("scorerList");
+
+  if(scorersA.length === 0){
+    list.innerHTML = "";
+    return;
+  }
+
+  list.innerHTML = "<strong>Goal Scorers:</strong><br>";
+  scorersA.forEach(s => {
+    list.innerHTML += "• " + s + "<br>";
+  });
 }
 
 function resetGame() {
