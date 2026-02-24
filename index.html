@@ -182,7 +182,6 @@ function exportImage() {
   canvas.height = 1080;
   const ctx = canvas.getContext("2d");
 
-  // Green gradient background
   const gradient = ctx.createLinearGradient(0, 0, 0, 1080);
   gradient.addColorStop(0, "#0f5f2e");
   gradient.addColorStop(1, "#013d1b");
@@ -192,13 +191,13 @@ function exportImage() {
   const logo = new Image();
   logo.src = "logo.png";
 
-  logo.onload = function () {
+  logo.onload = async function () {
 
-    const logoSize = 200;
+    const logoSize = 180;
     ctx.drawImage(
       logo,
       (1080 - logoSize) / 2,
-      40,
+      30,
       logoSize,
       logoSize
     );
@@ -206,47 +205,47 @@ function exportImage() {
     ctx.fillStyle = "#ffffff";
     ctx.textAlign = "center";
 
-    ctx.font = "bold 40px Arial";
-    ctx.fillText("FINAL SCORE", 540, 300);
+    ctx.font = "bold 60px Arial";
+    ctx.fillText("FINAL SCORE", 540, 280);
 
     ctx.font = "28px Arial";
     ctx.fillText(
       document.getElementById("tournament").value,
       540,
-      350
+      330
     );
 
     ctx.fillText(
       document.getElementById("category").value,
       540,
-      390
+      370
     );
 
     ctx.font = "bold 110px Arial";
-    ctx.fillText(scoreA + "  -  " + scoreB, 540, 560);
+    ctx.fillText(scoreA + "  -  " + scoreB, 540, 540);
 
     ctx.font = "bold 45px Arial";
-    ctx.fillText("IRISH", 300, 640);
+    ctx.fillText("IRISH", 300, 620);
     ctx.fillText(
       document.getElementById("opponentName").value,
       780,
-      640
+      620
     );
 
     ctx.font = "26px Arial";
     ctx.fillText(
       new Date().toLocaleDateString(),
       540,
-      700
+      680
     );
 
     if (scorersA.length > 0) {
       ctx.textAlign = "left";
       ctx.font = "bold 30px Arial";
-      ctx.fillText("Goal Scorers:", 150, 780);
+      ctx.fillText("Goal Scorers:", 150, 760);
 
       ctx.font = "26px Arial";
-      let y = 830;
+      let y = 810;
 
       scorersA.forEach(s => {
         ctx.fillText("• " + s, 170, y);
@@ -254,18 +253,27 @@ function exportImage() {
       });
     }
 
-    const link = document.createElement("a");
-    link.download =
-      "IRISH_vs_" +
-      document.getElementById("opponentName").value +
-      "_" +
-      scoreA +
-      "-" +
-      scoreB +
-      ".png";
+    canvas.toBlob(async function(blob) {
 
-    link.href = canvas.toDataURL("image/png");
-    link.click();
+      const file = new File([blob], "irish-final-score.png", {
+        type: "image/png"
+      });
+
+      // If iPhone supports native share
+      if (navigator.share && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: "IRISH Final Score",
+        });
+      } else {
+        // Fallback to normal download
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "irish-final-score.png";
+        link.click();
+      }
+
+    }, "image/png");
   };
 }
 
