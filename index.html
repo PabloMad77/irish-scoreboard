@@ -108,11 +108,8 @@ function addGoal() {
   const name = prompt("Player Name:");
   if (!name) return;
 
-  const minute = prompt("Minute scored? (optional)");
-  const entry = minute ? name + " (" + minute + "')" : name;
-
   scoreA++;
-  scorersA.push(entry);
+  scorersA.push(name);
   updateDisplay();
 }
 
