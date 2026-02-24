@@ -182,22 +182,26 @@ function exportImage() {
   canvas.height = 1080;
   const ctx = canvas.getContext("2d");
 
+  // ===== Background Gradient =====
   const gradient = ctx.createLinearGradient(0, 0, 0, 1080);
   gradient.addColorStop(0, "#0f5f2e");
   gradient.addColorStop(1, "#013d1b");
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, 1080, 1080);
 
+  const centerX = 540;
+
   const logo = new Image();
   logo.src = "logo.png";
 
   logo.onload = async function () {
 
-    const logoSize = 180;
+    // ===== LOGO =====
+    const logoSize = 170;
     ctx.drawImage(
       logo,
-      (1080 - logoSize) / 2,
-      30,
+      centerX - logoSize / 2,
+      70,
       logoSize,
       logoSize
     );
@@ -205,53 +209,92 @@ function exportImage() {
     ctx.fillStyle = "#ffffff";
     ctx.textAlign = "center";
 
-    ctx.font = "bold 60px Arial";
-    ctx.fillText("FINAL SCORE", 540, 280);
+    // ===== FINAL LABEL =====
+    ctx.font = "bold 55px Arial";
+    ctx.fillText("FINAL SCORE", centerX, 280);
 
-    ctx.font = "28px Arial";
+    // ===== TOURNAMENT INFO =====
+    ctx.font = "26px Arial";
     ctx.fillText(
       document.getElementById("tournament").value,
-      540,
+      centerX,
       330
     );
 
     ctx.fillText(
       document.getElementById("category").value,
-      540,
-      370
+      centerX,
+      365
     );
 
-    ctx.font = "bold 110px Arial";
-    ctx.fillText(scoreA + "  -  " + scoreB, 540, 540);
+    // ===== MAIN SCORE (Hero Element) =====
+    ctx.font = "bold 130px Arial";
+    ctx.fillText(scoreA + "  -  " + scoreB, centerX, 560);
 
-    ctx.font = "bold 45px Arial";
-    ctx.fillText("IRISH", 300, 620);
+    // ===== TEAM NAMES =====
+    ctx.font = "bold 42px Arial";
+    ctx.fillText("IRISH", 330, 640);
     ctx.fillText(
       document.getElementById("opponentName").value,
-      780,
-      620
+      750,
+      640
     );
 
-    ctx.font = "26px Arial";
+    // ===== Divider Line =====
+    ctx.strokeStyle = "rgba(255,255,255,0.4)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(200, 690);
+    ctx.lineTo(880, 690);
+    ctx.stroke();
+
+    // ===== DATE =====
+    ctx.font = "24px Arial";
     ctx.fillText(
       new Date().toLocaleDateString(),
-      540,
-      680
+      centerX,
+      730
     );
 
+    // ===== SCORERS =====
     if (scorersA.length > 0) {
-      ctx.textAlign = "left";
-      ctx.font = "bold 30px Arial";
-      ctx.fillText("Goal Scorers:", 150, 760);
 
-      ctx.font = "26px Arial";
-      let y = 810;
+      ctx.textAlign = "left";
+      ctx.font = "bold 28px Arial";
+      ctx.fillText("Goal Scorers", 200, 800);
+
+      ctx.font = "24px Arial";
+      let y = 840;
 
       scorersA.forEach(s => {
-        ctx.fillText("• " + s, 170, y);
-        y += 35;
+        ctx.fillText("• " + s, 220, y);
+        y += 32;
       });
     }
+
+    // ===== SHARE FLOW =====
+    canvas.toBlob(async function(blob) {
+
+      const file = new File([blob], "irish-final-score.png", {
+        type: "image/png"
+      });
+
+      if (navigator.share && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: "IRISH Final Score"
+        });
+      } else {
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "irish-final-score.png";
+        link.click();
+      }
+
+    }, "image/png");
+  };
+}
+
 
     canvas.toBlob(async function(blob) {
 
