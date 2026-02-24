@@ -277,21 +277,6 @@ function exportImage() {
   };
 }
 
-    const link = document.createElement("a");
-    link.download =
-      "IRISH_vs_" +
-      document.getElementById("opponentName").value +
-      "_" +
-      scoreA +
-      "-" +
-      scoreB +
-      ".png";
-
-    link.href = canvas.toDataURL("image/png");
-    link.click();
-  };
-}
-
 document.getElementById("opponentName").addEventListener("input", updateTitle);
 
 loadData();
