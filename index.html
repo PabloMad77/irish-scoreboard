@@ -1,208 +1,262 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>IRISH Soccer Scoreboard</title>
 
 <style>
-body{
-  font-family: Arial, sans-serif;
-  background:#f4f4f4;
-  text-align:center;
-  padding:20px;
+body {
+font-family: Arial, sans-serif;
+text-align: center;
+margin: 0;
+padding: 10px;
 }
 
-.container{
-  max-width:400px;
-  margin:auto;
-  background:white;
-  padding:20px;
-  border-radius:12px;
-  box-shadow:0 4px 10px rgba(0,0,0,0.1);
+h1 { margin-bottom: 5px; }
+
+.info-input {
+margin: 5px 0;
+font-size: 16px;
+padding: 6px;
+width: 90%;
+max-width: 400px;
 }
 
-input{
-  width:100%;
-  padding:10px;
-  margin:6px 0;
-  border-radius:8px;
-  border:1px solid #ccc;
-  font-size:16px;
+.team {
+padding: 20px;
+border-radius: 14px;
+color: white;
+margin-bottom: 15px;
 }
 
-.score{
-  font-size:48px;
-  font-weight:bold;
-  margin:15px 0;
+.score {
+font-size: 70px;
+margin: 10px 0;
 }
 
-button{
-  padding:10px 15px;
-  margin:5px;
-  border:none;
-  border-radius:8px;
-  font-size:16px;
-  cursor:pointer;
+button {
+font-size: 18px;
+padding: 8px 12px;
+margin: 5px;
+border: none;
+border-radius: 8px;
 }
 
-.plus{ background:#1c7c3c; color:white; }
-.minus{ background:#c0392b; color:white; }
-.export{ background:black; color:white; width:100%; margin-top:15px; }
-
-.scorer-list{
-  text-align:left;
-  margin-top:10px;
+.scorers {
+background: rgba(255,255,255,0.2);
+padding: 10px;
+border-radius: 10px;
+margin-top: 10px;
+font-size: 14px;
+text-align: left;
 }
+
+.controls { margin-top: 15px; }
 </style>
 </head>
 
 <body>
 
-<div class="container">
+<h1 id="title">IRISH vs Opponent</h1>
 
-<h2>IRISH Soccer Scoreboard</h2>
+<input class="info-input" type="text" id="category" placeholder="Category (U10, U12, etc)">
+<br>
+<input class="info-input" type="text" id="tournament" placeholder="Tournament Name">
 
-<input type="text" id="tournament" placeholder="Tournament Name">
-<input type="text" id="category" placeholder="Category">
-<input type="text" id="opponentName" placeholder="Opponent Name">
+<!-- IRISH -->
+<div class="team" style="background:#0f5f2e;">
+<h2>IRISH</h2>
+<div class="score" id="scoreA">0</div>
+<button onclick="addGoal()">+1</button>
+<button onclick="removeGoal()">-1</button>
 
-<div class="score">
-IRISH <span id="scoreA">0</span> - 
-<span id="scoreB">0</span>
+<div class="scorers">
+<strong>Goal Scorers:</strong>
+<div id="scorersA"></div>
+</div>
 </div>
 
-<button class="plus" onclick="addGoal()">+1 IRISH Goal</button>
-<button class="minus" onclick="removeGoal()">-1</button>
+<!-- OPPONENT -->
+<div class="team" style="background:#444;">
+<input type="text" id="opponentName" value="Opponent">
+<div class="score" id="scoreB">0</div>
+<button onclick="addOpponentGoal()">+1</button>
+<button onclick="removeOpponentGoal()">-1</button>
+</div>
 
-<br><br>
-
-<button class="plus" onclick="addOpponent()">+1 Opponent</button>
-<button class="minus" onclick="removeOpponent()">-1</button>
-
-<div class="scorer-list" id="scorerList"></div>
-
-<button class="export" onclick="exportImage()">📸 Share Final Score</button>
-
+<div class="controls">
+<button onclick="resetGame()">Reset Game</button>
+<button onclick="exportImage()">📸 Save Final Score</button>
 </div>
 
 <script>
+
 let scoreA = 0;
 let scoreB = 0;
 let scorersA = [];
 
-function updateDisplay(){
-  document.getElementById("scoreA").innerText = scoreA;
-  document.getElementById("scoreB").innerText = scoreB;
-
-  const list = document.getElementById("scorerList");
-  if(scorersA.length === 0){
-    list.innerHTML = "";
-    return;
-  }
-
-  list.innerHTML = "<strong>Goal Scorers:</strong><br>";
-  scorersA.forEach(s => {
-    list.innerHTML += "• " + s + "<br>";
-  });
+function updateTitle() {
+document.getElementById("title").textContent =
+"IRISH vs " + document.getElementById("opponentName").value;
 }
 
-function addGoal(){
-  const player = prompt("Player name:");
-  if(player){
-    scoreA++;
-    scorersA.push(player);
-    updateDisplay();
-  }
+function renderScorers() {
+document.getElementById("scorersA").innerHTML = scorersA.join("<br>");
 }
 
-function removeGoal(){
-  if(scoreA > 0){
-    scoreA--;
-    scorersA.pop();
-    updateDisplay();
-  }
+function addGoal() {
+const name = prompt("Player Name:");
+if (!name) return;
+
+scoreA++;
+scorersA.push(name);
+updateDisplay();
 }
 
-function addOpponent(){
-  scoreB++;
-  updateDisplay();
+function removeGoal() {
+if (scoreA > 0) {
+scoreA--;
+scorersA.pop();
+}
+updateDisplay();
 }
 
-function removeOpponent(){
-  if(scoreB > 0){
-    scoreB--;
-    updateDisplay();
-  }
+function addOpponentGoal() {
+scoreB++;
+updateDisplay();
 }
 
-function exportImage(){
+function removeOpponentGoal() {
+if (scoreB > 0) scoreB--;
+updateDisplay();
+}
 
-  const canvas = document.createElement("canvas");
-  canvas.width = 1080;
-  canvas.height = 1080;
-  const ctx = canvas.getContext("2d");
+function updateDisplay() {
+document.getElementById("scoreA").textContent = scoreA;
+document.getElementById("scoreB").textContent = scoreB;
+renderScorers();
+updateTitle();
+saveData();
+}
 
-  // Background Gradient
-  const gradient = ctx.createLinearGradient(0, 0, 0, 1080);
-  gradient.addColorStop(0, "#0f5f2e");
-  gradient.addColorStop(1, "#013d1b");
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, 1080, 1080);
+function resetGame() {
+scoreA = 0;
+scoreB = 0;
+scorersA = [];
+document.getElementById("opponentName").value = "Opponent";
+document.getElementById("category").value = "";
+document.getElementById("tournament").value = "";
+updateDisplay();
+localStorage.clear();
+}
+
+function saveData() {
+const data = {
+scoreA,
+scoreB,
+scorersA,
+opponent: document.getElementById("opponentName").value,
+category: document.getElementById("category").value,
+tournament: document.getElementById("tournament").value
+};
+localStorage.setItem("irishSoccerGame", JSON.stringify(data));
+}
+
+function loadData() {
+const data = JSON.parse(localStorage.getItem("irishSoccerGame"));
+if (!data) return;
+
+scoreA = data.scoreA || 0;
+scoreB = data.scoreB || 0;
+scorersA = data.scorersA || [];
+document.getElementById("opponentName").value = data.opponent || "Opponent";
+document.getElementById("category").value = data.category || "";
+document.getElementById("tournament").value = data.tournament || "";
+updateDisplay();
+}
+
+function exportImage() {
+
+const canvas = document.createElement("canvas");
+canvas.width = 1080;
+canvas.height = 1080;
+const ctx = canvas.getContext("2d");
+
+  // ===== Background Gradient =====
+const gradient = ctx.createLinearGradient(0, 0, 0, 1080);
+gradient.addColorStop(0, "#0f5f2e");
+gradient.addColorStop(1, "#013d1b");
+ctx.fillStyle = gradient;
+ctx.fillRect(0, 0, 1080, 1080);
 
   const centerX = 540;
 
-  const logo = new Image();
-  logo.src = "logo.png";
+const logo = new Image();
+logo.src = "logo.png";
 
-  logo.onload = async function () {
+logo.onload = async function () {
 
-    // LOGO
+    const logoSize = 180;
+    // ===== LOGO =====
     const logoSize = 170;
-    ctx.drawImage(
-      logo,
+ctx.drawImage(
+logo,
+      (1080 - logoSize) / 2,
+      30,
       centerX - logoSize / 2,
       70,
-      logoSize,
-      logoSize
-    );
+logoSize,
+logoSize
+);
 
-    ctx.fillStyle = "#ffffff";
-    ctx.textAlign = "center";
+ctx.fillStyle = "#ffffff";
+ctx.textAlign = "center";
 
-    // FINAL SCORE LABEL
+    ctx.font = "bold 60px Arial";
+    ctx.fillText("FINAL SCORE", 540, 280);
+    // ===== FINAL LABEL =====
     ctx.font = "bold 55px Arial";
     ctx.fillText("FINAL SCORE", centerX, 280);
 
-    // Tournament
+    ctx.font = "28px Arial";
+    // ===== TOURNAMENT INFO =====
     ctx.font = "26px Arial";
-    ctx.fillText(
-      document.getElementById("tournament").value,
+ctx.fillText(
+document.getElementById("tournament").value,
+      540,
       centerX,
-      330
-    );
+330
+);
 
-    // Category
-    ctx.fillText(
-      document.getElementById("category").value,
+ctx.fillText(
+document.getElementById("category").value,
+      540,
+      370
       centerX,
       365
-    );
+);
 
-    // BIG SCORE
+    ctx.font = "bold 110px Arial";
+    ctx.fillText(scoreA + "  -  " + scoreB, 540, 540);
+    // ===== MAIN SCORE (Hero Element) =====
     ctx.font = "bold 130px Arial";
     ctx.fillText(scoreA + "  -  " + scoreB, centerX, 560);
 
-    // TEAM NAMES
+    ctx.font = "bold 45px Arial";
+    ctx.fillText("IRISH", 300, 620);
+    // ===== TEAM NAMES =====
     ctx.font = "bold 42px Arial";
     ctx.fillText("IRISH", 330, 640);
-    ctx.fillText(
-      document.getElementById("opponentName").value,
+ctx.fillText(
+document.getElementById("opponentName").value,
+      780,
+      620
       750,
       640
-    );
+);
 
-    // Divider Line
+    ctx.font = "26px Arial";
+    // ===== Divider Line =====
     ctx.strokeStyle = "rgba(255,255,255,0.4)";
     ctx.lineWidth = 2;
     ctx.beginPath();
@@ -210,40 +264,49 @@ function exportImage(){
     ctx.lineTo(880, 690);
     ctx.stroke();
 
-    // Date
+    // ===== DATE =====
     ctx.font = "24px Arial";
-    ctx.fillText(
-      new Date().toLocaleDateString(),
+ctx.fillText(
+new Date().toLocaleDateString(),
+      540,
+      680
       centerX,
       730
-    );
+);
 
-    // Goal Scorers
-    if (scorersA.length > 0) {
-      ctx.textAlign = "left";
+    // ===== SCORERS =====
+if (scorersA.length > 0) {
+
+ctx.textAlign = "left";
+      ctx.font = "bold 30px Arial";
+      ctx.fillText("Goal Scorers:", 150, 760);
       ctx.font = "bold 28px Arial";
       ctx.fillText("Goal Scorers", 200, 800);
 
+      ctx.font = "26px Arial";
+      let y = 810;
       ctx.font = "24px Arial";
       let y = 840;
 
-      scorersA.forEach(s => {
+scorersA.forEach(s => {
+        ctx.fillText("• " + s, 170, y);
+        y += 35;
         ctx.fillText("• " + s, 220, y);
         y += 32;
-      });
-    }
+});
+}
 
-    // Share or Download
+    // ===== SHARE FLOW =====
     canvas.toBlob(async function(blob) {
 
       const file = new File([blob], "irish-final-score.png", {
         type: "image/png"
       });
 
-      if(navigator.share && navigator.canShare({files:[file]})){
+      if (navigator.share && navigator.canShare({ files: [file] })) {
         await navigator.share({
-          files:[file],
-          title:"IRISH Final Score"
+          files: [file],
+          title: "IRISH Final Score"
         });
       } else {
         const link = document.createElement("a");
@@ -255,6 +318,36 @@ function exportImage(){
     }, "image/png");
   };
 }
+
+
+canvas.toBlob(async function(blob) {
+
+const file = new File([blob], "irish-final-score.png", {
+type: "image/png"
+});
+
+// If iPhone supports native share
+if (navigator.share && navigator.canShare({ files: [file] })) {
+await navigator.share({
+files: [file],
+title: "IRISH Final Score",
+});
+} else {
+// Fallback to normal download
+const link = document.createElement("a");
+link.href = URL.createObjectURL(blob);
+link.download = "irish-final-score.png";
+link.click();
+}
+
+}, "image/png");
+};
+}
+
+document.getElementById("opponentName").addEventListener("input", updateTitle);
+
+loadData();
+
 </script>
 
 </body>
