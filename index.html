@@ -22,10 +22,6 @@ body{
   box-shadow:0 4px 10px rgba(0,0,0,0.1);
 }
 
-h2{
-  margin-bottom:10px;
-}
-
 input{
   width:100%;
   padding:10px;
@@ -100,6 +96,11 @@ function updateDisplay(){
   document.getElementById("scoreB").innerText = scoreB;
 
   const list = document.getElementById("scorerList");
+  if(scorersA.length === 0){
+    list.innerHTML = "";
+    return;
+  }
+
   list.innerHTML = "<strong>Goal Scorers:</strong><br>";
   scorersA.forEach(s => {
     list.innerHTML += "• " + s + "<br>";
@@ -142,74 +143,102 @@ function exportImage(){
   canvas.height = 1080;
   const ctx = canvas.getContext("2d");
 
-  // Green Gradient Background
-  const gradient = ctx.createLinearGradient(0,0,0,1080);
-  gradient.addColorStop(0,"#0f5f2e");
-  gradient.addColorStop(1,"#013d1b");
+  // Background Gradient
+  const gradient = ctx.createLinearGradient(0, 0, 0, 1080);
+  gradient.addColorStop(0, "#0f5f2e");
+  gradient.addColorStop(1, "#013d1b");
   ctx.fillStyle = gradient;
-  ctx.fillRect(0,0,1080,1080);
+  ctx.fillRect(0, 0, 1080, 1080);
 
   const centerX = 540;
 
   const logo = new Image();
   logo.src = "logo.png";
 
-  logo.onload = async function(){
+  logo.onload = async function () {
 
-    // Logo
+    // LOGO
     const logoSize = 170;
-    ctx.drawImage(logo, centerX - logoSize/2, 60, logoSize, logoSize);
+    ctx.drawImage(
+      logo,
+      centerX - logoSize / 2,
+      70,
+      logoSize,
+      logoSize
+    );
 
-    ctx.fillStyle="#ffffff";
-    ctx.textAlign="center";
+    ctx.fillStyle = "#ffffff";
+    ctx.textAlign = "center";
 
-    // Title
-    ctx.font="bold 55px Arial";
-    ctx.fillText("FINAL SCORE", centerX, 270);
+    // FINAL SCORE LABEL
+    ctx.font = "bold 55px Arial";
+    ctx.fillText("FINAL SCORE", centerX, 280);
 
-    // Tournament + Category
-    ctx.font="26px Arial";
-    ctx.fillText(document.getElementById("tournament").value, centerX, 320);
-    ctx.fillText(document.getElementById("category").value, centerX, 355);
+    // Tournament
+    ctx.font = "26px Arial";
+    ctx.fillText(
+      document.getElementById("tournament").value,
+      centerX,
+      330
+    );
 
-    // Big Score
-    ctx.font="bold 130px Arial";
+    // Category
+    ctx.fillText(
+      document.getElementById("category").value,
+      centerX,
+      365
+    );
+
+    // BIG SCORE
+    ctx.font = "bold 130px Arial";
     ctx.fillText(scoreA + "  -  " + scoreB, centerX, 560);
 
-    // Team Names
-    ctx.font="bold 42px Arial";
+    // TEAM NAMES
+    ctx.font = "bold 42px Arial";
     ctx.fillText("IRISH", 330, 640);
-    ctx.fillText(document.getElementById("opponentName").value, 750, 640);
+    ctx.fillText(
+      document.getElementById("opponentName").value,
+      750,
+      640
+    );
 
-    // Divider
-    ctx.strokeStyle="rgba(255,255,255,0.4)";
-    ctx.lineWidth=2;
+    // Divider Line
+    ctx.strokeStyle = "rgba(255,255,255,0.4)";
+    ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(200,690);
-    ctx.lineTo(880,690);
+    ctx.moveTo(200, 690);
+    ctx.lineTo(880, 690);
     ctx.stroke();
 
     // Date
-    ctx.font="24px Arial";
-    ctx.fillText(new Date().toLocaleDateString(), centerX, 730);
+    ctx.font = "24px Arial";
+    ctx.fillText(
+      new Date().toLocaleDateString(),
+      centerX,
+      730
+    );
 
-    // Scorers
-    if(scorersA.length>0){
-      ctx.textAlign="left";
-      ctx.font="bold 28px Arial";
-      ctx.fillText("Goal Scorers",200,800);
+    // Goal Scorers
+    if (scorersA.length > 0) {
+      ctx.textAlign = "left";
+      ctx.font = "bold 28px Arial";
+      ctx.fillText("Goal Scorers", 200, 800);
 
-      ctx.font="24px Arial";
-      let y=840;
-      scorersA.forEach(s=>{
-        ctx.fillText("• "+s,220,y);
-        y+=32;
+      ctx.font = "24px Arial";
+      let y = 840;
+
+      scorersA.forEach(s => {
+        ctx.fillText("• " + s, 220, y);
+        y += 32;
       });
     }
 
     // Share or Download
-    canvas.toBlob(async function(blob){
-      const file = new File([blob],"irish-final-score.png",{type:"image/png"});
+    canvas.toBlob(async function(blob) {
+
+      const file = new File([blob], "irish-final-score.png", {
+        type: "image/png"
+      });
 
       if(navigator.share && navigator.canShare({files:[file]})){
         await navigator.share({
@@ -217,14 +246,14 @@ function exportImage(){
           title:"IRISH Final Score"
         });
       } else {
-        const link=document.createElement("a");
-        link.href=URL.createObjectURL(blob);
-        link.download="irish-final-score.png";
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "irish-final-score.png";
         link.click();
       }
 
-    },"image/png");
-  }
+    }, "image/png");
+  };
 }
 </script>
 
